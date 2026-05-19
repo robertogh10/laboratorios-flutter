@@ -20,9 +20,7 @@ void main() {
     expect(find.text('Personalise your\nexperience'), findsOneWidget);
   });
 
-  testWidgets('navigates to interests and then to a blank screen', (
-    tester,
-  ) async {
+  testWidgets('navigates from onboarding to the marketplace', (tester) async {
     tester.view.physicalSize = const Size(589, 1275);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -44,8 +42,8 @@ void main() {
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(Scaffold), findsOneWidget);
-    expect(find.text('Next'), findsNothing);
+    expect(find.text('Perfect for you'), findsOneWidget);
+    expect(find.text('Amazing T-shirt'), findsOneWidget);
     expect(find.text('Personalise your\nexperience'), findsNothing);
   });
 
@@ -71,5 +69,69 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byIcon(Icons.check), findsNWidgets(4));
+  });
+
+  testWidgets('opens product detail, bag and checkout payment', (tester) async {
+    tester.view.physicalSize = const Size(589, 1275);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const ProviderScope(child: MainApp()));
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Amazing T-shirt').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('€ 12.00'), findsOneWidget);
+    expect(find.text('+  Add to bag'), findsOneWidget);
+
+    await tester.tap(find.text('+  Add to bag'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your bag'), findsOneWidget);
+    expect(find.text('Total'), findsOneWidget);
+
+    await tester.tap(find.text('Checkout'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose a payment method'), findsOneWidget);
+    expect(find.text('Mastercard'), findsOneWidget);
+    expect(find.text('Continue'), findsOneWidget);
+  });
+
+  testWidgets('runs the store flow on a Pixel 9 viewport', (tester) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const ProviderScope(child: MainApp()));
+
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Next'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Perfect for you'), findsOneWidget);
+
+    await tester.tap(find.text('Amazing T-shirt').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('+  Add to bag'), findsOneWidget);
+
+    await tester.tap(find.text('+  Add to bag'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Your bag'), findsOneWidget);
+
+    await tester.tap(find.text('Checkout'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Choose a payment method'), findsOneWidget);
   });
 }

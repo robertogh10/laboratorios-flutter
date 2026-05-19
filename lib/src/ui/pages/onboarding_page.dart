@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laboratorio_experinece_app/src/ui/providers/onboarding_provider.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/intro_step_view.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/interests_step_view.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/store_flow_page.dart';
 
 class OnboardingPage extends ConsumerWidget {
   const OnboardingPage({super.key});
@@ -22,7 +23,7 @@ class OnboardingPage extends ConsumerWidget {
             onInterestPressed: controller.toggleInterest,
             onNext: controller.next,
           ),
-          const SizedBox.expand(),
+          const StoreFlowPage(),
         ],
       ),
     );
