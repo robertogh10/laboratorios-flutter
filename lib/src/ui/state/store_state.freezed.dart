@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$StoreState {
 
- StoreView get view; List<Product> get products; List<BagItem> get bagItems; List<PaymentMethod> get paymentMethods; String get selectedProductId; String get selectedPaymentMethodId; bool get billingSameAsShipping;
+ List<Product> get products; List<BagItem> get bagItems; List<PaymentMethod> get paymentMethods; String get selectedProductId; String get selectedPaymentMethodId; bool get billingSameAsShipping;
 /// Create a copy of StoreState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $StoreStateCopyWith<StoreState> get copyWith => _$StoreStateCopyWithImpl<StoreSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreState&&(identical(other.view, view) || other.view == view)&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.bagItems, bagItems)&&const DeepCollectionEquality().equals(other.paymentMethods, paymentMethods)&&(identical(other.selectedProductId, selectedProductId) || other.selectedProductId == selectedProductId)&&(identical(other.selectedPaymentMethodId, selectedPaymentMethodId) || other.selectedPaymentMethodId == selectedPaymentMethodId)&&(identical(other.billingSameAsShipping, billingSameAsShipping) || other.billingSameAsShipping == billingSameAsShipping));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is StoreState&&const DeepCollectionEquality().equals(other.products, products)&&const DeepCollectionEquality().equals(other.bagItems, bagItems)&&const DeepCollectionEquality().equals(other.paymentMethods, paymentMethods)&&(identical(other.selectedProductId, selectedProductId) || other.selectedProductId == selectedProductId)&&(identical(other.selectedPaymentMethodId, selectedPaymentMethodId) || other.selectedPaymentMethodId == selectedPaymentMethodId)&&(identical(other.billingSameAsShipping, billingSameAsShipping) || other.billingSameAsShipping == billingSameAsShipping));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,view,const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(bagItems),const DeepCollectionEquality().hash(paymentMethods),selectedProductId,selectedPaymentMethodId,billingSameAsShipping);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(products),const DeepCollectionEquality().hash(bagItems),const DeepCollectionEquality().hash(paymentMethods),selectedProductId,selectedPaymentMethodId,billingSameAsShipping);
 
 @override
 String toString() {
-  return 'StoreState(view: $view, products: $products, bagItems: $bagItems, paymentMethods: $paymentMethods, selectedProductId: $selectedProductId, selectedPaymentMethodId: $selectedPaymentMethodId, billingSameAsShipping: $billingSameAsShipping)';
+  return 'StoreState(products: $products, bagItems: $bagItems, paymentMethods: $paymentMethods, selectedProductId: $selectedProductId, selectedPaymentMethodId: $selectedPaymentMethodId, billingSameAsShipping: $billingSameAsShipping)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $StoreStateCopyWith<$Res>  {
   factory $StoreStateCopyWith(StoreState value, $Res Function(StoreState) _then) = _$StoreStateCopyWithImpl;
 @useResult
 $Res call({
- StoreView view, List<Product> products, List<BagItem> bagItems, List<PaymentMethod> paymentMethods, String selectedProductId, String selectedPaymentMethodId, bool billingSameAsShipping
+ List<Product> products, List<BagItem> bagItems, List<PaymentMethod> paymentMethods, String selectedProductId, String selectedPaymentMethodId, bool billingSameAsShipping
 });
 
 
@@ -62,10 +62,9 @@ class _$StoreStateCopyWithImpl<$Res>
 
 /// Create a copy of StoreState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? view = null,Object? products = null,Object? bagItems = null,Object? paymentMethods = null,Object? selectedProductId = null,Object? selectedPaymentMethodId = null,Object? billingSameAsShipping = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? products = null,Object? bagItems = null,Object? paymentMethods = null,Object? selectedProductId = null,Object? selectedPaymentMethodId = null,Object? billingSameAsShipping = null,}) {
   return _then(_self.copyWith(
-view: null == view ? _self.view : view // ignore: cast_nullable_to_non_nullable
-as StoreView,products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
+products: null == products ? _self.products : products // ignore: cast_nullable_to_non_nullable
 as List<Product>,bagItems: null == bagItems ? _self.bagItems : bagItems // ignore: cast_nullable_to_non_nullable
 as List<BagItem>,paymentMethods: null == paymentMethods ? _self.paymentMethods : paymentMethods // ignore: cast_nullable_to_non_nullable
 as List<PaymentMethod>,selectedProductId: null == selectedProductId ? _self.selectedProductId : selectedProductId // ignore: cast_nullable_to_non_nullable
@@ -156,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( StoreView view,  List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _StoreState() when $default != null:
-return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
+return $default(_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
   return orElse();
 
 }
@@ -177,10 +176,10 @@ return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( StoreView view,  List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)  $default,) {final _that = this;
 switch (_that) {
 case _StoreState():
-return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
+return $default(_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -197,10 +196,10 @@ return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( StoreView view,  List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Product> products,  List<BagItem> bagItems,  List<PaymentMethod> paymentMethods,  String selectedProductId,  String selectedPaymentMethodId,  bool billingSameAsShipping)?  $default,) {final _that = this;
 switch (_that) {
 case _StoreState() when $default != null:
-return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
+return $default(_that.products,_that.bagItems,_that.paymentMethods,_that.selectedProductId,_that.selectedPaymentMethodId,_that.billingSameAsShipping);case _:
   return null;
 
 }
@@ -212,10 +211,9 @@ return $default(_that.view,_that.products,_that.bagItems,_that.paymentMethods,_t
 
 
 class _StoreState implements StoreState {
-  const _StoreState({required this.view, required final  List<Product> products, required final  List<BagItem> bagItems, required final  List<PaymentMethod> paymentMethods, required this.selectedProductId, required this.selectedPaymentMethodId, required this.billingSameAsShipping}): _products = products,_bagItems = bagItems,_paymentMethods = paymentMethods;
+  const _StoreState({required final  List<Product> products, required final  List<BagItem> bagItems, required final  List<PaymentMethod> paymentMethods, required this.selectedProductId, required this.selectedPaymentMethodId, required this.billingSameAsShipping}): _products = products,_bagItems = bagItems,_paymentMethods = paymentMethods;
   
 
-@override final  StoreView view;
  final  List<Product> _products;
 @override List<Product> get products {
   if (_products is EqualUnmodifiableListView) return _products;
@@ -251,16 +249,16 @@ _$StoreStateCopyWith<_StoreState> get copyWith => __$StoreStateCopyWithImpl<_Sto
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreState&&(identical(other.view, view) || other.view == view)&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._bagItems, _bagItems)&&const DeepCollectionEquality().equals(other._paymentMethods, _paymentMethods)&&(identical(other.selectedProductId, selectedProductId) || other.selectedProductId == selectedProductId)&&(identical(other.selectedPaymentMethodId, selectedPaymentMethodId) || other.selectedPaymentMethodId == selectedPaymentMethodId)&&(identical(other.billingSameAsShipping, billingSameAsShipping) || other.billingSameAsShipping == billingSameAsShipping));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _StoreState&&const DeepCollectionEquality().equals(other._products, _products)&&const DeepCollectionEquality().equals(other._bagItems, _bagItems)&&const DeepCollectionEquality().equals(other._paymentMethods, _paymentMethods)&&(identical(other.selectedProductId, selectedProductId) || other.selectedProductId == selectedProductId)&&(identical(other.selectedPaymentMethodId, selectedPaymentMethodId) || other.selectedPaymentMethodId == selectedPaymentMethodId)&&(identical(other.billingSameAsShipping, billingSameAsShipping) || other.billingSameAsShipping == billingSameAsShipping));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,view,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_bagItems),const DeepCollectionEquality().hash(_paymentMethods),selectedProductId,selectedPaymentMethodId,billingSameAsShipping);
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_products),const DeepCollectionEquality().hash(_bagItems),const DeepCollectionEquality().hash(_paymentMethods),selectedProductId,selectedPaymentMethodId,billingSameAsShipping);
 
 @override
 String toString() {
-  return 'StoreState(view: $view, products: $products, bagItems: $bagItems, paymentMethods: $paymentMethods, selectedProductId: $selectedProductId, selectedPaymentMethodId: $selectedPaymentMethodId, billingSameAsShipping: $billingSameAsShipping)';
+  return 'StoreState(products: $products, bagItems: $bagItems, paymentMethods: $paymentMethods, selectedProductId: $selectedProductId, selectedPaymentMethodId: $selectedPaymentMethodId, billingSameAsShipping: $billingSameAsShipping)';
 }
 
 
@@ -271,7 +269,7 @@ abstract mixin class _$StoreStateCopyWith<$Res> implements $StoreStateCopyWith<$
   factory _$StoreStateCopyWith(_StoreState value, $Res Function(_StoreState) _then) = __$StoreStateCopyWithImpl;
 @override @useResult
 $Res call({
- StoreView view, List<Product> products, List<BagItem> bagItems, List<PaymentMethod> paymentMethods, String selectedProductId, String selectedPaymentMethodId, bool billingSameAsShipping
+ List<Product> products, List<BagItem> bagItems, List<PaymentMethod> paymentMethods, String selectedProductId, String selectedPaymentMethodId, bool billingSameAsShipping
 });
 
 
@@ -288,10 +286,9 @@ class __$StoreStateCopyWithImpl<$Res>
 
 /// Create a copy of StoreState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? view = null,Object? products = null,Object? bagItems = null,Object? paymentMethods = null,Object? selectedProductId = null,Object? selectedPaymentMethodId = null,Object? billingSameAsShipping = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? products = null,Object? bagItems = null,Object? paymentMethods = null,Object? selectedProductId = null,Object? selectedPaymentMethodId = null,Object? billingSameAsShipping = null,}) {
   return _then(_StoreState(
-view: null == view ? _self.view : view // ignore: cast_nullable_to_non_nullable
-as StoreView,products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
+products: null == products ? _self._products : products // ignore: cast_nullable_to_non_nullable
 as List<Product>,bagItems: null == bagItems ? _self._bagItems : bagItems // ignore: cast_nullable_to_non_nullable
 as List<BagItem>,paymentMethods: null == paymentMethods ? _self._paymentMethods : paymentMethods // ignore: cast_nullable_to_non_nullable
 as List<PaymentMethod>,selectedProductId: null == selectedProductId ? _self.selectedProductId : selectedProductId // ignore: cast_nullable_to_non_nullable

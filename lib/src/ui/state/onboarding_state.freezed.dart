@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$OnboardingState {
 
- int get pageIndex; List<Interest> get interests;
+ List<Interest> get interests;
 /// Create a copy of OnboardingState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $OnboardingStateCopyWith<OnboardingState> get copyWith => _$OnboardingStateCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is OnboardingState&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&const DeepCollectionEquality().equals(other.interests, interests));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is OnboardingState&&const DeepCollectionEquality().equals(other.interests, interests));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageIndex,const DeepCollectionEquality().hash(interests));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(interests));
 
 @override
 String toString() {
-  return 'OnboardingState(pageIndex: $pageIndex, interests: $interests)';
+  return 'OnboardingState(interests: $interests)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $OnboardingStateCopyWith<$Res>  {
   factory $OnboardingStateCopyWith(OnboardingState value, $Res Function(OnboardingState) _then) = _$OnboardingStateCopyWithImpl;
 @useResult
 $Res call({
- int pageIndex, List<Interest> interests
+ List<Interest> interests
 });
 
 
@@ -62,10 +62,9 @@ class _$OnboardingStateCopyWithImpl<$Res>
 
 /// Create a copy of OnboardingState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? pageIndex = null,Object? interests = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? interests = null,}) {
   return _then(_self.copyWith(
-pageIndex: null == pageIndex ? _self.pageIndex : pageIndex // ignore: cast_nullable_to_non_nullable
-as int,interests: null == interests ? _self.interests : interests // ignore: cast_nullable_to_non_nullable
+interests: null == interests ? _self.interests : interests // ignore: cast_nullable_to_non_nullable
 as List<Interest>,
   ));
 }
@@ -151,10 +150,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int pageIndex,  List<Interest> interests)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<Interest> interests)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _OnboardingState() when $default != null:
-return $default(_that.pageIndex,_that.interests);case _:
+return $default(_that.interests);case _:
   return orElse();
 
 }
@@ -172,10 +171,10 @@ return $default(_that.pageIndex,_that.interests);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int pageIndex,  List<Interest> interests)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<Interest> interests)  $default,) {final _that = this;
 switch (_that) {
 case _OnboardingState():
-return $default(_that.pageIndex,_that.interests);case _:
+return $default(_that.interests);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -192,10 +191,10 @@ return $default(_that.pageIndex,_that.interests);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int pageIndex,  List<Interest> interests)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<Interest> interests)?  $default,) {final _that = this;
 switch (_that) {
 case _OnboardingState() when $default != null:
-return $default(_that.pageIndex,_that.interests);case _:
+return $default(_that.interests);case _:
   return null;
 
 }
@@ -207,10 +206,9 @@ return $default(_that.pageIndex,_that.interests);case _:
 
 
 class _OnboardingState implements OnboardingState {
-  const _OnboardingState({required this.pageIndex, required final  List<Interest> interests}): _interests = interests;
+  const _OnboardingState({required final  List<Interest> interests}): _interests = interests;
   
 
-@override final  int pageIndex;
  final  List<Interest> _interests;
 @override List<Interest> get interests {
   if (_interests is EqualUnmodifiableListView) return _interests;
@@ -229,16 +227,16 @@ _$OnboardingStateCopyWith<_OnboardingState> get copyWith => __$OnboardingStateCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OnboardingState&&(identical(other.pageIndex, pageIndex) || other.pageIndex == pageIndex)&&const DeepCollectionEquality().equals(other._interests, _interests));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _OnboardingState&&const DeepCollectionEquality().equals(other._interests, _interests));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,pageIndex,const DeepCollectionEquality().hash(_interests));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_interests));
 
 @override
 String toString() {
-  return 'OnboardingState(pageIndex: $pageIndex, interests: $interests)';
+  return 'OnboardingState(interests: $interests)';
 }
 
 
@@ -249,7 +247,7 @@ abstract mixin class _$OnboardingStateCopyWith<$Res> implements $OnboardingState
   factory _$OnboardingStateCopyWith(_OnboardingState value, $Res Function(_OnboardingState) _then) = __$OnboardingStateCopyWithImpl;
 @override @useResult
 $Res call({
- int pageIndex, List<Interest> interests
+ List<Interest> interests
 });
 
 
@@ -266,10 +264,9 @@ class __$OnboardingStateCopyWithImpl<$Res>
 
 /// Create a copy of OnboardingState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? pageIndex = null,Object? interests = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? interests = null,}) {
   return _then(_OnboardingState(
-pageIndex: null == pageIndex ? _self.pageIndex : pageIndex // ignore: cast_nullable_to_non_nullable
-as int,interests: null == interests ? _self._interests : interests // ignore: cast_nullable_to_non_nullable
+interests: null == interests ? _self._interests : interests // ignore: cast_nullable_to_non_nullable
 as List<Interest>,
   ));
 }

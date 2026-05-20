@@ -27,15 +27,7 @@ final onboardingControllerProvider =
 class OnboardingController extends Notifier<OnboardingState> {
   @override
   OnboardingState build() {
-    return OnboardingState(
-      pageIndex: 0,
-      interests: ref.watch(getInterestsProvider)(),
-    );
-  }
-
-  void next() {
-    final nextIndex = state.pageIndex < 2 ? state.pageIndex + 1 : 2;
-    state = state.copyWith(pageIndex: nextIndex);
+    return OnboardingState(interests: ref.watch(getInterestsProvider)());
   }
 
   void toggleInterest(String id) {

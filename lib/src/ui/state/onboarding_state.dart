@@ -5,8 +5,6 @@ part 'onboarding_state.freezed.dart';
 
 @freezed
 abstract class OnboardingState with _$OnboardingState {
-  const factory OnboardingState({
-    required int pageIndex,
-    required List<Interest> interests,
-  }) = _OnboardingState;
+  const factory OnboardingState({required List<Interest> interests}) =
+      _OnboardingState;
 }

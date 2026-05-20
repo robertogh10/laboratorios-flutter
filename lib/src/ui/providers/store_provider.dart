@@ -40,7 +40,6 @@ class StoreController extends Notifier<StoreState> {
     final paymentMethods = ref.watch(getPaymentMethodsProvider)();
 
     return StoreState(
-      view: StoreView.home,
       products: products,
       bagItems: ref.watch(getBagItemsProvider)(),
       paymentMethods: paymentMethods,
@@ -51,9 +50,11 @@ class StoreController extends Notifier<StoreState> {
   }
 
   Product get selectedProduct {
-    return state.products.firstWhere(
-      (product) => product.id == state.selectedProductId,
-    );
+    return productById(state.selectedProductId);
+  }
+
+  Product productById(String id) {
+    return state.products.firstWhere((product) => product.id == id);
   }
 
   double get total {
@@ -67,24 +68,12 @@ class StoreController extends Notifier<StoreState> {
     return state.bagItems.fold<int>(0, (sum, item) => sum + item.quantity);
   }
 
-  void openHome() {
-    state = state.copyWith(view: StoreView.home);
-  }
-
-  void openProduct(String id) {
-    state = state.copyWith(view: StoreView.detail, selectedProductId: id);
-  }
-
-  void openBag() {
-    state = state.copyWith(view: StoreView.bag);
-  }
-
-  void openCheckout() {
-    state = state.copyWith(view: StoreView.checkout);
-  }
-
   void addSelectedProductToBag() {
-    final product = selectedProduct;
+    addProductToBag(state.selectedProductId);
+  }
+
+  void addProductToBag(String productId) {
+    final product = productById(productId);
     final exists = state.bagItems.any((item) => item.product.id == product.id);
     final bagItems = exists
         ? state.bagItems.map((item) {
@@ -96,7 +85,7 @@ class StoreController extends Notifier<StoreState> {
           }).toList()
         : [...state.bagItems, BagItem(product: product, quantity: 1)];
 
-    state = state.copyWith(bagItems: bagItems, view: StoreView.bag);
+    state = state.copyWith(bagItems: bagItems);
   }
 
   void incrementItem(String id) {
