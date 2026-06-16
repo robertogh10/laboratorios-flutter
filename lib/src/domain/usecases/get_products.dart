@@ -6,7 +6,7 @@ class GetProducts {
 
   final StoreRepository _repository;
 
-  List<Product> call() {
+  Future<List<Product>> call() {
     return _repository.getProducts();
   }
 }

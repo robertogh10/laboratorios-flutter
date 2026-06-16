@@ -26,7 +26,7 @@ class OnboardingPage extends ConsumerWidget {
         OnboardingStep.interests => InterestsStepView(
           interests: state.interests,
           onInterestPressed: controller.toggleInterest,
-          onNext: () => context.go(AppRoutes.storeHome),
+          onNext: () => context.go(AppRoutes.login),
         ),
       },
     );

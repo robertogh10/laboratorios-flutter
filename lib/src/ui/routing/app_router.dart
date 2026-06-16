@@ -1,25 +1,51 @@
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/auth_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/onboarding_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/store_flow_page.dart';
 
 abstract final class AppRoutes {
   static const onboardingIntro = '/onboarding/intro';
   static const onboardingInterests = '/onboarding/interests';
+  static const login = '/auth/login';
+  static const register = '/auth/register';
   static const storeHome = '/store';
   static const storeBag = '/store/bag';
   static const storeCheckout = '/store/checkout';
+  static const storeAddCard = '/store/checkout/add-card';
 
   static String storeProduct(String productId) {
     return '/store/product/$productId';
   }
 }
 
-GoRouter createAppRouter() {
+GoRouter createAppRouter({bool firebaseEnabled = false}) {
   return GoRouter(
     initialLocation: AppRoutes.onboardingIntro,
+    refreshListenable: firebaseEnabled
+        ? GoRouterRefreshStream(FirebaseAuth.instance.authStateChanges())
+        : null,
     redirect: (context, state) {
-      if (state.uri.path == '/') {
+      final path = state.uri.path;
+
+      if (path == '/') {
         return AppRoutes.onboardingIntro;
+      }
+
+      final isAuthRoute = path == AppRoutes.login || path == AppRoutes.register;
+      final isStoreRoute = path.startsWith('/store');
+      final isSignedIn =
+          firebaseEnabled && FirebaseAuth.instance.currentUser != null;
+
+      if (firebaseEnabled && isStoreRoute && !isSignedIn) {
+        return AppRoutes.login;
+      }
+
+      if (isAuthRoute && isSignedIn) {
+        return AppRoutes.storeHome;
       }
 
       return null;
@@ -35,6 +61,18 @@ GoRouter createAppRouter() {
         path: AppRoutes.onboardingInterests,
         builder: (context, state) {
           return const OnboardingPage(step: OnboardingStep.interests);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) {
+          return const AuthPage(mode: AuthPageMode.login);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) {
+          return const AuthPage(mode: AuthPageMode.register);
         },
       ),
       GoRoute(
@@ -64,6 +102,29 @@ GoRouter createAppRouter() {
           return const StoreFlowPage(view: StoreRouteView.checkout);
         },
       ),
+      GoRoute(
+        path: AppRoutes.storeAddCard,
+        builder: (context, state) {
+          return const StoreFlowPage(view: StoreRouteView.addCard);
+        },
+      ),
     ],
   );
+}
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((dynamic _) {
+      notifyListeners();
+    });
+  }
+
+  late final StreamSubscription<dynamic> _subscription;
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
 }

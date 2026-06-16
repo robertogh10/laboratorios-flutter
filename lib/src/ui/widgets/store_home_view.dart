@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/product.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/store_product_image.dart';
@@ -226,29 +227,83 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _ProductRow extends StatelessWidget {
+class _ProductRow extends StatefulWidget {
   const _ProductRow({required this.products, required this.onProductPressed});
 
   final List<Product> products;
   final ValueChanged<String> onProductPressed;
 
   @override
+  State<_ProductRow> createState() => _ProductRowState();
+}
+
+class _ProductRowState extends State<_ProductRow> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 225,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return _ProductCard(
-            product: product,
-            onPressed: () => onProductPressed(product.id),
-          );
-        },
-        separatorBuilder: (context, index) => const SizedBox(width: 15),
-        itemCount: products.length,
+      child: Listener(
+        onPointerSignal: _handlePointerSignal,
+        child: ScrollConfiguration(
+          behavior: const _HorizontalProductScrollBehavior(),
+          child: ListView.separated(
+            controller: _scrollController,
+            primary: false,
+            clipBehavior: Clip.none,
+            padding: const EdgeInsets.only(right: 20),
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              final product = widget.products[index];
+              return _ProductCard(
+                product: product,
+                onPressed: () => widget.onProductPressed(product.id),
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(width: 15),
+            itemCount: widget.products.length,
+          ),
+        ),
       ),
     );
+  }
+
+  void _handlePointerSignal(PointerSignalEvent event) {
+    if (event is! PointerScrollEvent || !_scrollController.hasClients) {
+      return;
+    }
+
+    final position = _scrollController.position;
+    final delta = event.scrollDelta.dy == 0
+        ? event.scrollDelta.dx
+        : event.scrollDelta.dy;
+    final offset = (_scrollController.offset + delta).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+
+    _scrollController.jumpTo(offset);
+  }
+}
+
+class _HorizontalProductScrollBehavior extends MaterialScrollBehavior {
+  const _HorizontalProductScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices {
+    return {
+      ...super.dragDevices,
+      PointerDeviceKind.mouse,
+      PointerDeviceKind.trackpad,
+    };
   }
 }
 

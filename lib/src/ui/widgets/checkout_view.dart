@@ -10,6 +10,7 @@ class CheckoutView extends StatelessWidget {
     required this.onCancel,
     required this.onMethodPressed,
     required this.onBillingPressed,
+    required this.onAddNewCard,
     required this.onContinue,
     super.key,
   });
@@ -20,6 +21,7 @@ class CheckoutView extends StatelessWidget {
   final VoidCallback onCancel;
   final ValueChanged<String> onMethodPressed;
   final VoidCallback onBillingPressed;
+  final VoidCallback onAddNewCard;
   final VoidCallback onContinue;
 
   @override
@@ -98,6 +100,7 @@ class CheckoutView extends StatelessWidget {
                       billingSameAsShipping: billingSameAsShipping,
                       onMethodPressed: onMethodPressed,
                       onBillingPressed: onBillingPressed,
+                      onAddNewCard: onAddNewCard,
                     ),
                     const SizedBox(height: 18),
                     _ApplePayTile(
@@ -210,6 +213,7 @@ class _PaymentCardGroup extends StatelessWidget {
     required this.billingSameAsShipping,
     required this.onMethodPressed,
     required this.onBillingPressed,
+    required this.onAddNewCard,
   });
 
   final List<PaymentMethod> cards;
@@ -217,6 +221,7 @@ class _PaymentCardGroup extends StatelessWidget {
   final bool billingSameAsShipping;
   final ValueChanged<String> onMethodPressed;
   final VoidCallback onBillingPressed;
+  final VoidCallback onAddNewCard;
 
   @override
   Widget build(BuildContext context) {
@@ -258,21 +263,26 @@ class _PaymentCardGroup extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.add, color: Color(0xFF0A7CFF), size: 22),
-              SizedBox(width: 9),
-              Text(
-                'Add new card',
-                style: TextStyle(
-                  color: Color(0xFF0A7CFF),
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+          GestureDetector(
+            key: const ValueKey('add-new-card-button'),
+            onTap: onAddNewCard,
+            behavior: HitTestBehavior.opaque,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add, color: Color(0xFF0A7CFF), size: 22),
+                SizedBox(width: 9),
+                Text(
+                  'Add new card',
+                  style: TextStyle(
+                    color: Color(0xFF0A7CFF),
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 32),
           GestureDetector(
@@ -346,6 +356,8 @@ class _CardMethodTile extends StatelessWidget {
                   const SizedBox(height: 7),
                   Text(
                     method.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       color: Color(0xFF737780),
                       fontSize: 14,

@@ -10,6 +10,7 @@ class BagView extends StatelessWidget {
     required this.onBack,
     required this.onIncrement,
     required this.onDecrement,
+    required this.onRemove,
     required this.onCheckout,
     super.key,
   });
@@ -19,6 +20,7 @@ class BagView extends StatelessWidget {
   final VoidCallback onBack;
   final ValueChanged<String> onIncrement;
   final ValueChanged<String> onDecrement;
+  final ValueChanged<String> onRemove;
   final VoidCallback onCheckout;
 
   @override
@@ -64,6 +66,7 @@ class BagView extends StatelessWidget {
                     item: item,
                     onIncrement: () => onIncrement(item.product.id),
                     onDecrement: () => onDecrement(item.product.id),
+                    onRemove: () => onRemove(item.product.id),
                   );
                 },
                 separatorBuilder: (context, index) =>
@@ -109,11 +112,13 @@ class _BagItemTile extends StatelessWidget {
     required this.item,
     required this.onIncrement,
     required this.onDecrement,
+    required this.onRemove,
   });
 
   final BagItem item;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
+  final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
@@ -195,13 +200,38 @@ class _BagItemTile extends StatelessWidget {
                 ),
               ),
               SizedBox(width: compact ? 8 : 12),
-              Text(
-                '€ ${(item.product.price * item.quantity).toStringAsFixed(2)}',
-                style: TextStyle(
-                  color: const Color(0xFF202129),
-                  fontSize: compact ? 15 : 17,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+              SizedBox(
+                width: compact ? 70 : 82,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      key: ValueKey('remove-bag-item-${item.product.id}'),
+                      onTap: onRemove,
+                      behavior: HitTestBehavior.opaque,
+                      child: const SizedBox.square(
+                        dimension: 32,
+                        child: Icon(
+                          Icons.delete_outline,
+                          color: Color(0xFF0A7CFF),
+                          size: 23,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: compact ? 14 : 19),
+                    Text(
+                      '€ ${(item.product.price * item.quantity).toStringAsFixed(2)}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: const Color(0xFF202129),
+                        fontSize: compact ? 15 : 17,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],

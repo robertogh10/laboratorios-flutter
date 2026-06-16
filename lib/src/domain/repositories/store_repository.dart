@@ -3,9 +3,13 @@ import 'package:laboratorio_experinece_app/src/domain/entities/payment_method.da
 import 'package:laboratorio_experinece_app/src/domain/entities/product.dart';
 
 abstract interface class StoreRepository {
-  List<Product> getProducts();
+  Future<List<Product>> getProducts();
 
-  List<BagItem> getBagItems();
+  Future<List<BagItem>> getBagItems();
 
-  List<PaymentMethod> getPaymentMethods();
+  Future<List<PaymentMethod>> getPaymentMethods();
+
+  Future<void> saveBagItems(List<BagItem> items);
+
+  Future<void> savePaymentMethods(List<PaymentMethod> methods);
 }

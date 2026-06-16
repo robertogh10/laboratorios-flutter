@@ -13,7 +13,25 @@ abstract class BagItemModel with _$BagItemModel {
     required int quantity,
   }) = _BagItemModel;
 
+  factory BagItemModel.fromEntity(BagItem item) {
+    return BagItemModel(
+      product: ProductModel.fromEntity(item.product),
+      quantity: item.quantity,
+    );
+  }
+
+  factory BagItemModel.fromJson(Map<String, Object?> json) {
+    return BagItemModel(
+      product: ProductModel.fromJson(json['product'] as Map<String, Object?>),
+      quantity: (json['quantity'] as num).toInt(),
+    );
+  }
+
   BagItem toEntity() {
     return BagItem(product: product.toEntity(), quantity: quantity);
+  }
+
+  Map<String, Object?> toJson() {
+    return {'quantity': quantity, 'product': product.toJson()};
   }
 }

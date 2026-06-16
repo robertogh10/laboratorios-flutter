@@ -8,6 +8,8 @@ class ProductDetailView extends StatelessWidget {
     required this.product,
     required this.onClose,
     required this.onFavoritePressed,
+    required this.onSizeSelected,
+    required this.onColorSelected,
     required this.onAddToBag,
     super.key,
   });
@@ -15,6 +17,8 @@ class ProductDetailView extends StatelessWidget {
   final Product product;
   final VoidCallback onClose;
   final VoidCallback onFavoritePressed;
+  final ValueChanged<String> onSizeSelected;
+  final ValueChanged<int> onColorSelected;
   final VoidCallback onAddToBag;
 
   @override
@@ -61,6 +65,8 @@ class ProductDetailView extends StatelessWidget {
                     product: product,
                     compact: isNarrow,
                     onFavoritePressed: onFavoritePressed,
+                    onSizeSelected: onSizeSelected,
+                    onColorSelected: onColorSelected,
                     onAddToBag: onAddToBag,
                   ),
                 ),
@@ -78,12 +84,16 @@ class _ProductDetailContent extends StatelessWidget {
     required this.product,
     required this.compact,
     required this.onFavoritePressed,
+    required this.onSizeSelected,
+    required this.onColorSelected,
     required this.onAddToBag,
   });
 
   final Product product;
   final bool compact;
   final VoidCallback onFavoritePressed;
+  final ValueChanged<String> onSizeSelected;
+  final ValueChanged<int> onColorSelected;
   final VoidCallback onAddToBag;
 
   @override
@@ -158,7 +168,7 @@ class _ProductDetailContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 11),
-            _SizeSelector(product: product),
+            _SizeSelector(product: product, onSelected: onSizeSelected),
             SizedBox(height: compact ? 22 : 35),
             const Text(
               'Color',
@@ -170,7 +180,7 @@ class _ProductDetailContent extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 13),
-            _ColorSelector(product: product),
+            _ColorSelector(product: product, onSelected: onColorSelected),
           ],
         );
 
@@ -240,9 +250,10 @@ class _Dot extends StatelessWidget {
 }
 
 class _SizeSelector extends StatelessWidget {
-  const _SizeSelector({required this.product});
+  const _SizeSelector({required this.product, required this.onSelected});
 
   final Product product;
+  final ValueChanged<String> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -252,23 +263,28 @@ class _SizeSelector extends StatelessWidget {
 
         return Padding(
           padding: const EdgeInsets.only(right: 13),
-          child: Container(
-            width: 45,
-            height: 29,
-            decoration: BoxDecoration(
-              color: selected
-                  ? const Color(0xFF0A7CFF)
-                  : const Color(0xFFEAF4FF),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: Text(
-                size,
-                style: TextStyle(
-                  color: selected ? Colors.white : const Color(0xFF0A7CFF),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 0,
+          child: GestureDetector(
+            key: ValueKey('product-size-$size'),
+            onTap: () => onSelected(size),
+            behavior: HitTestBehavior.opaque,
+            child: Container(
+              width: 45,
+              height: 29,
+              decoration: BoxDecoration(
+                color: selected
+                    ? const Color(0xFF0A7CFF)
+                    : const Color(0xFFEAF4FF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(
+                  size,
+                  style: TextStyle(
+                    color: selected ? Colors.white : const Color(0xFF0A7CFF),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0,
+                  ),
                 ),
               ),
             ),
@@ -280,9 +296,10 @@ class _SizeSelector extends StatelessWidget {
 }
 
 class _ColorSelector extends StatelessWidget {
-  const _ColorSelector({required this.product});
+  const _ColorSelector({required this.product, required this.onSelected});
 
   final Product product;
+  final ValueChanged<int> onSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -292,36 +309,47 @@ class _ColorSelector extends StatelessWidget {
 
         return Padding(
           padding: const EdgeInsets.only(right: 14),
-          child: SizedBox(
-            width: 42,
-            height: 42,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: Color(colorValue),
-                    shape: BoxShape.circle,
+          child: GestureDetector(
+            key: ValueKey(
+              'product-color-${colorValue.toUnsigned(32).toRadixString(16)}',
+            ),
+            onTap: () => onSelected(colorValue),
+            behavior: HitTestBehavior.opaque,
+            child: SizedBox(
+              width: 42,
+              height: 42,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Color(colorValue),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const SizedBox.square(dimension: 42),
                   ),
-                  child: const SizedBox.square(dimension: 42),
-                ),
-                if (selected)
-                  const Positioned(
-                    right: -1,
-                    top: -4,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF0A7CFF),
-                        shape: BoxShape.circle,
-                      ),
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: Icon(Icons.check, color: Colors.white, size: 14),
+                  if (selected)
+                    const Positioned(
+                      right: -1,
+                      top: -4,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Color(0xFF0A7CFF),
+                          shape: BoxShape.circle,
+                        ),
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: Icon(
+                            Icons.check,
+                            color: Colors.white,
+                            size: 14,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         );
