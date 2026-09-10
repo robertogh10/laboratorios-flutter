@@ -85,6 +85,16 @@ class _AuthPageState extends ConsumerState<AuthPage> {
                               keyboardType: TextInputType.emailAddress,
                               validator: _validateEmail,
                             ),
+                            if (_isLogin)
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: authState.isLoading
+                                      ? null
+                                      : _resetPassword,
+                                  child: const Text('Forgot your password?'),
+                                ),
+                              ),
                             const SizedBox(height: 14),
                             _AuthTextField(
                               key: const ValueKey('auth-password-field'),
@@ -194,6 +204,31 @@ class _AuthPageState extends ConsumerState<AuthPage> {
     }
 
     context.go(AppRoutes.storeHome);
+  }
+
+  Future<void> _resetPassword() async {
+    final emailError = _validateEmail(_emailController.text);
+
+    if (emailError != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(emailError)));
+      return;
+    }
+
+    final sent = await ref
+        .read(authControllerProvider.notifier)
+        .sendPasswordReset(_emailController.text);
+
+    if (!mounted || !sent) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Revisa tu correo para restablecer la contrasena.'),
+      ),
+    );
   }
 
   String? _validateEmail(String? value) {

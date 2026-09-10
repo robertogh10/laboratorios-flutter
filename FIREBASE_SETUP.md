@@ -150,6 +150,13 @@ sales/{saleId}
 `uid` sale de Firebase Auth. Si Firebase no esta configurado, la app usa
 `demo-user` solamente para el modo demo local.
 
+El documento principal del usuario tambien puede contener:
+
+```text
+users/{uid} -> email, displayName, profileImageUrl, fcmToken,
+               fcmTokenUpdatedAt, updatedAt
+```
+
 ## 8. Administracion de productos en la app
 
 Cuando un usuario inicia sesion, la app revisa si su correo existe en
@@ -296,7 +303,40 @@ El archivo listo para publicar esta en `firestore.rules`. Su contenido permite:
 
 No uses reglas abiertas con `allow read, write: if true`.
 
-## 14. Probar el flujo completo
+## 14. Activar Storage para la foto de perfil
+
+1. Abre `Build > Storage` y crea el bucket del proyecto.
+2. Publica `storage.rules` junto con las reglas de Firestore:
+
+```bash
+firebase deploy --only firestore:rules,storage --project laboratorio-experience-app
+```
+
+La app guarda una sola imagen por usuario en
+`profile_images/{uid}/avatar`. Las reglas limitan escritura al propietario,
+aceptan solo imagenes y fijan un maximo de 5 MB.
+
+## 15. Activar Cloud Messaging
+
+En Android, el `google-services.json` existente aporta el Sender ID. En Android
+13 o posterior el sistema pedira permiso de notificaciones. Comprueba en
+`Project settings > Cloud Messaging` que Cloud Messaging API este habilitada.
+
+Para iOS, ademas del `GoogleService-Info.plist`:
+
+1. Activa `Push Notifications` y `Background Modes > Remote notifications` en
+   el target Runner de Xcode.
+2. Sube a Firebase la llave APNs (`.p8`) o el certificado correspondiente.
+3. Prueba en un dispositivo fisico.
+
+Tras iniciar sesion, la app escribe el token en `users/{uid}.fcmToken`. Una
+notificacion puede incluir `data.route = "sales"` o `"profile"` para abrir esa
+seccion al tocarla. Puedes probar desde Firebase Console. Para envios
+automaticos usa Cloud Functions o un backend con Admin SDK y lee `userId` desde
+la venta y `fcmToken` desde el usuario; no incluyas cuentas de servicio en la
+app Flutter.
+
+## 16. Probar el flujo completo
 
 1. Ejecuta `flutter pub get`.
 2. Inicia Android con `flutter run -d <device-id>`.

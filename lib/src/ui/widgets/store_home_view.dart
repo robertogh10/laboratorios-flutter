@@ -12,6 +12,7 @@ class StoreHomeView extends StatelessWidget {
     required this.onSignOut,
     required this.onBagPressed,
     required this.onSalesPressed,
+    required this.onProfilePressed,
     required this.onAddProductPressed,
     super.key,
   });
@@ -23,6 +24,7 @@ class StoreHomeView extends StatelessWidget {
   final VoidCallback onSignOut;
   final VoidCallback onBagPressed;
   final VoidCallback onSalesPressed;
+  final VoidCallback onProfilePressed;
   final VoidCallback onAddProductPressed;
 
   @override
@@ -84,11 +86,13 @@ class StoreHomeView extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Positioned(
+                Positioned(
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _StoreBottomNavigation(),
+                  child: _StoreBottomNavigation(
+                    onProfilePressed: onProfilePressed,
+                  ),
                 ),
               ],
             ),
@@ -403,7 +407,9 @@ class _ProductCard extends StatelessWidget {
 }
 
 class _StoreBottomNavigation extends StatelessWidget {
-  const _StoreBottomNavigation();
+  const _StoreBottomNavigation({required this.onProfilePressed});
+
+  final VoidCallback onProfilePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -411,17 +417,22 @@ class _StoreBottomNavigation extends StatelessWidget {
       height: 105,
       color: Colors.white,
       padding: const EdgeInsets.fromLTRB(31, 13, 31, 18),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _NavItem(icon: Icons.explore, label: 'Explore', selected: true),
-          _NavItem(
+          const _NavItem(icon: Icons.explore, label: 'Explore', selected: true),
+          const _NavItem(
             icon: Icons.grid_view_rounded,
             label: 'Categories',
             selected: false,
           ),
-          _NavItem(icon: Icons.store, label: 'Stores', selected: false),
-          _NavItem(icon: Icons.person, label: 'Profile', selected: false),
+          const _NavItem(icon: Icons.store, label: 'Stores', selected: false),
+          _NavItem(
+            icon: Icons.person,
+            label: 'Profile',
+            selected: false,
+            onPressed: onProfilePressed,
+          ),
         ],
       ),
     );
@@ -433,34 +444,40 @@ class _NavItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.selected,
+    this.onPressed,
   });
 
   final IconData icon;
   final String label;
   final bool selected;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final color = selected ? const Color(0xFF0A7CFF) : const Color(0xFFC8CDD6);
 
-    return SizedBox(
-      width: 72,
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 25),
-          const SizedBox(height: 9),
-          Text(
-            label,
-            style: TextStyle(
-              color: selected
-                  ? const Color(0xFF202129)
-                  : const Color(0xFF8D929C),
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 0,
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 72,
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 25),
+            const SizedBox(height: 9),
+            Text(
+              label,
+              style: TextStyle(
+                color: selected
+                    ? const Color(0xFF202129)
+                    : const Color(0xFF8D929C),
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

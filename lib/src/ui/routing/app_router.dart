@@ -4,8 +4,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/auth_page.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/credit_request_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/onboarding_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/product_form_page.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/profile_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/store_flow_page.dart';
 
 abstract final class AppRoutes {
@@ -18,6 +20,8 @@ abstract final class AppRoutes {
   static const storeSales = '/store/sales';
   static const storeCheckout = '/store/checkout';
   static const storeAddCard = '/store/checkout/add-card';
+  static const storeProfile = '/store/profile';
+  static const storeCredit = '/store/profile/credit';
   static const storeNewProduct = '/store/admin/products/new';
 
   static String storeProduct(String productId) {
@@ -137,6 +141,14 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
         builder: (context, state) {
           return const StoreFlowPage(view: StoreRouteView.addCard);
         },
+      ),
+      GoRoute(
+        path: AppRoutes.storeProfile,
+        builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.storeCredit,
+        builder: (context, state) => const CreditRequestPage(),
       ),
     ],
   );

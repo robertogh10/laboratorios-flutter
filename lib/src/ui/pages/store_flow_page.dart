@@ -58,6 +58,7 @@ class StoreFlowPage extends ConsumerWidget {
             },
             onBagPressed: () => context.go(AppRoutes.storeBag),
             onSalesPressed: () => context.go(AppRoutes.storeSales),
+            onProfilePressed: () => context.go(AppRoutes.storeProfile),
             onAddProductPressed: () => context.go(AppRoutes.storeNewProduct),
           ),
           StoreRouteView.detail => ProductDetailView(

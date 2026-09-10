@@ -71,6 +71,29 @@ class AuthController extends AsyncNotifier<void> {
     });
   }
 
+  Future<bool> sendPasswordReset(String email) async {
+    if (!ref.read(firebaseEnabledProvider)) {
+      state = AsyncError(
+        StateError('Firebase no esta configurado para esta ejecucion.'),
+        StackTrace.current,
+      );
+      return false;
+    }
+
+    state = const AsyncLoading();
+
+    try {
+      await ref
+          .read(firebaseAuthProvider)
+          .sendPasswordResetEmail(email: email.trim().toLowerCase());
+      state = const AsyncData(null);
+      return true;
+    } on FirebaseAuthException catch (error, stackTrace) {
+      state = AsyncError(_friendlyMessage(error), stackTrace);
+      return false;
+    }
+  }
+
   Future<void> signOut() async {
     if (!ref.read(firebaseEnabledProvider)) {
       return;
