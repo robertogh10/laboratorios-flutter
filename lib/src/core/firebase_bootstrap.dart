@@ -24,7 +24,12 @@ class FirebaseBootstrap {
   }
 
   static bool get _canUseNativeConfiguration {
-    return !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
+    return !kIsWeb &&
+        {
+          TargetPlatform.android,
+          TargetPlatform.iOS,
+          TargetPlatform.macOS,
+        }.contains(defaultTargetPlatform);
   }
 
   static Future<bool> _initializeFromNativeConfiguration() async {

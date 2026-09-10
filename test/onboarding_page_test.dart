@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:laboratorio_experinece_app/main.dart';
+import 'package:laboratorio_experinece_app/src/data/datasources/sales_local_data_source.dart';
 import 'package:laboratorio_experinece_app/src/data/datasources/store_local_data_source.dart';
+import 'package:laboratorio_experinece_app/src/ui/providers/sales_provider.dart';
 import 'package:laboratorio_experinece_app/src/ui/providers/store_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -148,6 +150,13 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Continue'), findsOneWidget);
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('My purchases'), findsOneWidget);
+    expect(find.textContaining('Sale #'), findsOneWidget);
+    expect(find.textContaining('Amex'), findsOneWidget);
   });
 
   testWidgets('runs the store flow on a Pixel 9 viewport', (tester) async {
@@ -193,6 +202,9 @@ Future<void> pumpMainApp(WidgetTester tester) async {
       overrides: [
         storeLocalDataSourceProvider.overrideWith(
           (ref) => StoreLocalDataSource(sharedPreferences: prefs),
+        ),
+        salesLocalDataSourceProvider.overrideWith(
+          (ref) => SalesLocalDataSource(sharedPreferences: prefs),
         ),
       ],
       child: const MainApp(),

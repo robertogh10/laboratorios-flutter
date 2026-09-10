@@ -12,6 +12,7 @@ class CheckoutView extends StatelessWidget {
     required this.onBillingPressed,
     required this.onAddNewCard,
     required this.onContinue,
+    this.continuing = false,
     super.key,
   });
 
@@ -23,11 +24,14 @@ class CheckoutView extends StatelessWidget {
   final VoidCallback onBillingPressed;
   final VoidCallback onAddNewCard;
   final VoidCallback onContinue;
+  final bool continuing;
 
   @override
   Widget build(BuildContext context) {
     final cards = methods.where((method) => method.id != 'apple-pay').toList();
-    final applePay = methods.firstWhere((method) => method.id == 'apple-pay');
+    final applePayMethods = methods
+        .where((method) => method.id == 'apple-pay')
+        .toList();
 
     return SafeArea(
       child: Padding(
@@ -103,18 +107,23 @@ class CheckoutView extends StatelessWidget {
                       onAddNewCard: onAddNewCard,
                     ),
                     const SizedBox(height: 18),
-                    _ApplePayTile(
-                      method: applePay,
-                      selected: selectedMethodId == applePay.id,
-                      onPressed: () => onMethodPressed(applePay.id),
-                    ),
+                    if (applePayMethods.isNotEmpty)
+                      _ApplePayTile(
+                        method: applePayMethods.first,
+                        selected: selectedMethodId == applePayMethods.first.id,
+                        onPressed: () =>
+                            onMethodPressed(applePayMethods.first.id),
+                      ),
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 14),
-            PrimaryButton(label: 'Continue', onPressed: onContinue),
+            PrimaryButton(
+              label: continuing ? 'Processing...' : 'Continue',
+              onPressed: continuing ? () {} : onContinue,
+            ),
           ],
         ),
       ),

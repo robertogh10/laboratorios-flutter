@@ -6,8 +6,10 @@ import 'package:laboratorio_experinece_app/src/ui/widgets/store_product_image.da
 class ProductDetailView extends StatelessWidget {
   const ProductDetailView({
     required this.product,
+    required this.isAdmin,
     required this.onClose,
     required this.onFavoritePressed,
+    required this.onEditPressed,
     required this.onSizeSelected,
     required this.onColorSelected,
     required this.onAddToBag,
@@ -15,8 +17,10 @@ class ProductDetailView extends StatelessWidget {
   });
 
   final Product product;
+  final bool isAdmin;
   final VoidCallback onClose;
   final VoidCallback onFavoritePressed;
+  final VoidCallback onEditPressed;
   final ValueChanged<String> onSizeSelected;
   final ValueChanged<int> onColorSelected;
   final VoidCallback onAddToBag;
@@ -64,7 +68,9 @@ class ProductDetailView extends StatelessWidget {
                   child: _ProductDetailContent(
                     product: product,
                     compact: isNarrow,
+                    isAdmin: isAdmin,
                     onFavoritePressed: onFavoritePressed,
+                    onEditPressed: onEditPressed,
                     onSizeSelected: onSizeSelected,
                     onColorSelected: onColorSelected,
                     onAddToBag: onAddToBag,
@@ -83,7 +89,9 @@ class _ProductDetailContent extends StatelessWidget {
   const _ProductDetailContent({
     required this.product,
     required this.compact,
+    required this.isAdmin,
     required this.onFavoritePressed,
+    required this.onEditPressed,
     required this.onSizeSelected,
     required this.onColorSelected,
     required this.onAddToBag,
@@ -91,7 +99,9 @@ class _ProductDetailContent extends StatelessWidget {
 
   final Product product;
   final bool compact;
+  final bool isAdmin;
   final VoidCallback onFavoritePressed;
+  final VoidCallback onEditPressed;
   final ValueChanged<String> onSizeSelected;
   final ValueChanged<int> onColorSelected;
   final VoidCallback onAddToBag;
@@ -135,11 +145,11 @@ class _ProductDetailContent extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: onFavoritePressed,
-                  child: const Icon(
-                    Icons.favorite_border,
+                  onTap: isAdmin ? onEditPressed : onFavoritePressed,
+                  child: Icon(
+                    isAdmin ? Icons.edit_outlined : Icons.favorite_border,
                     size: 31,
-                    color: Color(0xFF202129),
+                    color: const Color(0xFF202129),
                   ),
                 ),
               ],

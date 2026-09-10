@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:laboratorio_experinece_app/src/ui/providers/auth_provider.dart';
+import 'package:laboratorio_experinece_app/src/ui/providers/sales_provider.dart';
 import 'package:laboratorio_experinece_app/src/ui/providers/store_provider.dart';
 import 'package:laboratorio_experinece_app/src/ui/routing/app_router.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/add_card_view.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/bag_view.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/checkout_view.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/product_detail_view.dart';
+import 'package:laboratorio_experinece_app/src/ui/widgets/sales_stream_view.dart';
 import 'package:laboratorio_experinece_app/src/ui/widgets/store_home_view.dart';
 
-enum StoreRouteView { home, detail, bag, checkout, addCard }
+enum StoreRouteView { home, detail, bag, sales, checkout, addCard }
 
 class StoreFlowPage extends ConsumerWidget {
   const StoreFlowPage({required this.view, this.productId, super.key});
@@ -20,7 +23,14 @@ class StoreFlowPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(storeControllerProvider);
+    final authSession = ref.watch(authSessionProvider);
+    final sales = ref.watch(salesStreamProvider);
+    final checkoutState = ref.watch(salesControllerProvider);
     final controller = ref.read(storeControllerProvider.notifier);
+    final isAdmin = authSession.maybeWhen(
+      data: (session) => session?.isAdmin ?? false,
+      orElse: () => false,
+    );
 
     return Scaffold(
       body: asyncState.when(
@@ -33,18 +43,37 @@ class StoreFlowPage extends ConsumerWidget {
           StoreRouteView.home => StoreHomeView(
             products: state.products,
             bagCount: controller.bagCount,
+            isAdmin: isAdmin,
             onProductPressed: (id) {
               controller.selectProduct(id);
               context.go(AppRoutes.storeProduct(id));
             },
+            onSignOut: () async {
+              await ref.read(authControllerProvider.notifier).signOut();
+              ref.invalidate(salesStreamProvider);
+
+              if (context.mounted) {
+                context.go(AppRoutes.login);
+              }
+            },
             onBagPressed: () => context.go(AppRoutes.storeBag),
+            onSalesPressed: () => context.go(AppRoutes.storeSales),
+            onAddProductPressed: () => context.go(AppRoutes.storeNewProduct),
           ),
           StoreRouteView.detail => ProductDetailView(
             product: controller.productById(
               productId ?? state.selectedProductId,
             ),
+            isAdmin: isAdmin,
             onClose: () => context.go(AppRoutes.storeHome),
             onFavoritePressed: () {},
+            onEditPressed: () {
+              context.go(
+                AppRoutes.storeEditProduct(
+                  productId ?? state.selectedProductId,
+                ),
+              );
+            },
             onSizeSelected: (size) {
               controller.selectProductSize(
                 productId ?? state.selectedProductId,
@@ -71,6 +100,12 @@ class StoreFlowPage extends ConsumerWidget {
             onRemove: controller.removeItem,
             onCheckout: () => context.go(AppRoutes.storeCheckout),
           ),
+          StoreRouteView.sales => SalesStreamView(
+            sales: sales,
+            isAdmin: isAdmin,
+            onBack: () => context.go(AppRoutes.storeHome),
+            onRetry: () => ref.invalidate(salesStreamProvider),
+          ),
           StoreRouteView.checkout => CheckoutView(
             methods: state.paymentMethods,
             selectedMethodId: state.selectedPaymentMethodId,
@@ -79,7 +114,33 @@ class StoreFlowPage extends ConsumerWidget {
             onMethodPressed: controller.selectPaymentMethod,
             onBillingPressed: controller.toggleBillingSameAsShipping,
             onAddNewCard: () => context.go(AppRoutes.storeAddCard),
-            onContinue: () {},
+            continuing: checkoutState.isLoading,
+            onContinue: () async {
+              final completed = await ref
+                  .read(salesControllerProvider.notifier)
+                  .checkout();
+
+              if (!context.mounted) {
+                return;
+              }
+
+              if (completed) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Compra registrada.')),
+                );
+                context.go(AppRoutes.storeSales);
+                return;
+              }
+
+              final error = ref
+                  .read(salesControllerProvider)
+                  .whenOrNull(error: (error, stackTrace) => error.toString());
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(error ?? 'No se pudo completar la compra.'),
+                ),
+              );
+            },
           ),
           StoreRouteView.addCard => AddCardView(
             onCancel: () => context.go(AppRoutes.storeCheckout),

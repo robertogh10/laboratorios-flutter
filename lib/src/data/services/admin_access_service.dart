@@ -5,38 +5,24 @@ class AdminAccessService {
 
   final FirebaseFirestore _firestore;
 
-  Future<bool> isAdminEmail(String email) async {
+  Future<bool> isAdmin({required String uid, required String email}) async {
     final normalizedEmail = email.trim().toLowerCase();
+    final collection = _firestore.collection('admins');
+
+    if (uid.isNotEmpty) {
+      final uidDocument = await collection.doc(uid).get();
+
+      if (uidDocument.exists) {
+        return true;
+      }
+    }
 
     if (normalizedEmail.isEmpty) {
       return false;
     }
 
-    final collection = _firestore.collection('admins');
-    final doc = await collection.doc(normalizedEmail).get();
-
-    if (doc.exists) {
-      return true;
-    }
-
-    final normalizedQuery = await collection
-        .where('email', isEqualTo: normalizedEmail)
-        .limit(1)
-        .get();
-
-    if (normalizedQuery.docs.isNotEmpty) {
-      return true;
-    }
-
-    if (email.trim() == normalizedEmail) {
-      return false;
-    }
-
-    final originalQuery = await collection
-        .where('email', isEqualTo: email.trim())
-        .limit(1)
-        .get();
-
-    return originalQuery.docs.isNotEmpty;
+    // Email document IDs remain supported for projects that already use the
+    // original setup, but UID document IDs are preferred.
+    return (await collection.doc(normalizedEmail).get()).exists;
   }
 }

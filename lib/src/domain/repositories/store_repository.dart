@@ -5,6 +5,8 @@ import 'package:laboratorio_experinece_app/src/domain/entities/product.dart';
 abstract interface class StoreRepository {
   Future<List<Product>> getProducts();
 
+  Future<void> saveProduct(Product product);
+
   Future<List<BagItem>> getBagItems();
 
   Future<List<PaymentMethod>> getPaymentMethods();

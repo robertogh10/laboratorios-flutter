@@ -1,18 +1,56 @@
-# Firebase setup
+# Configuracion de Firebase paso a paso
 
 La app puede trabajar con Firebase Authentication y Cloud Firestore, pero
 Firebase queda apagado mientras no existan credenciales. En ese modo muestra un
 acceso demo y usa `StoreLocalDataSource` como fallback local.
 
-## 1. Crear el proyecto
+## 1. Crear o seleccionar el proyecto
 
-1. Crea un proyecto en Firebase Console.
-2. Activa Authentication con Email/Password.
-3. Activa Cloud Firestore.
-4. Registra las apps que necesites: Android, iOS, macOS y/o Web.
-5. Copia los valores de configuracion de Firebase.
+1. Entra a [Firebase Console](https://console.firebase.google.com/).
+2. Crea un proyecto o selecciona el proyecto que usaras.
+3. En `Project settings > General`, registra las apps que necesites.
 
-## 2. Ejecutar con Firebase activo en Android
+En este repositorio ya se detecto una configuracion Android para:
+
+```text
+Project ID: laboratorio-experience-app
+Package name: com.example.laboratorio_experinece_app
+```
+
+Puedes continuar con ese proyecto. Si registras otra app Android, su package
+name debe coincidir exactamente con el `applicationId` anterior.
+
+## 2. Activar Authentication
+
+1. En Firebase Console abre `Build > Authentication`.
+2. Presiona `Get started`.
+3. Abre `Sign-in method`.
+4. Selecciona `Email/Password`.
+5. Activa la primera opcion `Email/Password` y guarda.
+
+Los clientes pueden registrarse desde la propia app. Para crear un usuario de
+prueba manualmente, abre `Authentication > Users > Add user` e ingresa correo y
+contrasena.
+
+## 3. Crear Cloud Firestore
+
+1. Abre `Build > Firestore Database`.
+2. Presiona `Create database`.
+3. Elige la ubicacion mas cercana a tus usuarios. Esa ubicacion no se puede
+   cambiar posteriormente.
+4. Selecciona modo de produccion.
+5. Abre la pestana `Rules`.
+6. Copia el contenido completo de `firestore.rules` de este repositorio, pegalo
+   en el editor y presiona `Publish`.
+
+Si ya tienes Firebase CLI instalado y autenticado, el `firebase.json` incluido
+permite publicar las mismas reglas desde la raiz del proyecto:
+
+```bash
+firebase deploy --only firestore:rules --project laboratorio-experience-app
+```
+
+## 4. Conectar Android
 
 Para Android, descarga `google-services.json` desde Firebase Console y colocalo
 en:
@@ -25,7 +63,8 @@ La app Android ya tiene aplicado el plugin `com.google.gms.google-services`, asi
 que puede inicializar Firebase directamente desde ese archivo:
 
 ```bash
-flutter run -d android
+flutter devices
+flutter run -d <device-id>
 ```
 
 El `applicationId` actual de Android es:
@@ -36,9 +75,19 @@ com.example.laboratorio_experinece_app
 
 El package name registrado en Firebase debe coincidir exactamente con ese valor.
 
-## 3. Ejecutar con Firebase activo en Web u otras plataformas
+## 5. Conectar iOS, macOS o Web
 
-Pasa los valores como `--dart-define`:
+Para iOS:
+
+1. Registra el bundle ID `com.example.laboratorioExperineceApp`.
+2. Descarga `GoogleService-Info.plist`.
+3. Abre `ios/Runner.xcworkspace` con Xcode.
+4. Arrastra el archivo dentro de `Runner` y marca `Copy items if needed`.
+
+Para macOS repite el proceso dentro del target `macos/Runner`.
+
+Para Web y Windows, o si prefieres no agregar archivos nativos, pasa los valores
+como `--dart-define`:
 
 ```bash
 flutter run \
@@ -63,28 +112,14 @@ local.
 En Android, estos valores ya vienen del `google-services.json`, por lo que no
 necesitas pasarlos manualmente salvo que quieras sobreescribir la configuracion.
 
-## 4. Estructura de Firestore
+## 6. Crear el administrador
 
-La app espera estas colecciones:
+Primero registra o crea el usuario en Authentication. Luego:
 
-```text
-products/{productId}
-admins/{emailNormalizado}
-users/{uid}/bagItems/{bagItemId}
-users/{uid}/paymentMethods/{methodId}
-```
-
-`uid` sale de Firebase Auth. Si Firebase no esta configurado, la app usa
-`demo-user` solamente para el modo demo local.
-
-Para admins, la forma recomendada es usar el correo en minusculas como ID del
-documento:
-
-```text
-admins/admin@correo.com
-```
-
-El documento puede estar vacio o tener metadatos:
+1. En `Authentication > Users`, copia su `User UID`.
+2. En `Firestore Database > Data`, crea la coleccion `admins`.
+3. Crea un documento cuyo `Document ID` sea exactamente el UID copiado.
+4. Agrega estos campos opcionales:
 
 ```json
 {
@@ -93,10 +128,47 @@ El documento puede estar vacio o tener metadatos:
 }
 ```
 
-La app tambien acepta documentos en `admins` que tengan un campo `email`, por si
-tu coleccion actual ya esta guardada con IDs automaticos.
+La app tambien soporta, por compatibilidad, un documento cuyo ID sea el correo
+en minusculas (`admins/admin@correo.com`). Usar el UID es la opcion recomendada:
+no depende de cambios de correo ni de diferencias entre mayusculas y minusculas.
 
-## 5. Documento de producto
+No crees administradores desde el cliente. Las reglas incluidas impiden que la
+app se otorgue ese rol a si misma.
+
+## 7. Estructura de Firestore
+
+La app espera estas colecciones:
+
+```text
+products/{productId}
+admins/{uid}
+users/{uid}/bagItems/{bagItemId}
+users/{uid}/paymentMethods/{methodId}
+sales/{saleId}
+```
+
+`uid` sale de Firebase Auth. Si Firebase no esta configurado, la app usa
+`demo-user` solamente para el modo demo local.
+
+## 8. Administracion de productos en la app
+
+Cuando un usuario inicia sesion, la app revisa si su correo existe en
+`admins` usando primero su UID y, por compatibilidad, su correo. Si existe, la
+pantalla de tienda muestra:
+
+- Un boton `+` en la parte superior para crear productos.
+- Un boton de editar en el detalle del producto.
+
+El formulario guarda en:
+
+```text
+products/{productId}
+```
+
+Para que un usuario vea estas opciones, crea su documento `admins/{uid}` como se
+explica en el paso 6.
+
+## 9. Crear productos
 
 Ejemplo para `products/amazing-shirt`:
 
@@ -129,7 +201,11 @@ Campos obligatorios:
 Si `products` esta vacia, la app muestra los productos locales de ejemplo para
 que el flujo siga funcionando.
 
-## 6. Documento de carrito
+Puedes crear el primer producto manualmente en Firebase Console o iniciar sesion
+como administrador y usar el boton `+`. La edicion se abre desde el detalle del
+producto.
+
+## 10. Documento de carrito
 
 La app guarda cada item del carrito en `users/{uid}/bagItems/{bagItemId}`:
 
@@ -151,7 +227,7 @@ La app guarda cada item del carrito en `users/{uid}/bagItems/{bagItemId}`:
 }
 ```
 
-## 7. Documento de metodo de pago
+## 11. Documento de metodo de pago
 
 La app guarda metodos en `users/{uid}/paymentMethods/{methodId}`:
 
@@ -165,22 +241,76 @@ La app guarda metodos en `users/{uid}/paymentMethods/{methodId}`:
 
 No guardes numeros de tarjeta reales en Firestore.
 
-## 8. Reglas temporales para pruebas
+## 12. Stream de compras
 
-Para desarrollo inicial puedes usar reglas abiertas con fecha limite corta:
+Al presionar `Continue` en checkout, la app crea un documento con ID automatico
+en `sales`. Ejemplo:
 
-```text
-rules_version = '2';
-
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2026, 12, 31);
+```json
+{
+  "userId": "UID_DEL_COMPRADOR",
+  "userEmail": "cliente@correo.com",
+  "items": [
+    {
+      "quantity": 1,
+      "product": {
+        "id": "amazing-shirt-M-ff202129",
+        "name": "Amazing T-shirt",
+        "variant": "Black / M",
+        "category": "perfect",
+        "price": 20,
+        "description": "The perfect T-shirt for daily outfits.",
+        "sizes": ["S", "M", "L"],
+        "selectedSize": "M",
+        "colors": [4280295721],
+        "selectedColor": 4280295721
+      }
     }
-  }
+  ],
+  "total": 20,
+  "paymentMethod": "Visa",
+  "status": "created",
+  "createdAt": "Firestore Timestamp"
 }
 ```
 
-Antes de publicar la app, reemplaza esas reglas por reglas con autenticacion.
-Una base razonable es permitir lectura de productos a usuarios autenticados,
-permitir que cada usuario escriba solo bajo su propio UID y proteger `admins`.
+El icono de recibo abre el stream:
+
+- Un cliente recibe en tiempo real solo documentos cuyo `userId` sea su UID.
+- Un administrador recibe en tiempo real todas las ventas.
+- Al completarse la compra se limpia `users/{uid}/bagItems`.
+
+No debes crear indices compuestos para esta consulta: el orden se aplica en el
+cliente.
+
+## 13. Reglas de seguridad
+
+El archivo listo para publicar esta en `firestore.rules`. Su contenido permite:
+
+- Leer productos solo con sesion iniciada.
+- Crear o editar productos solo a administradores.
+- Leer/escribir carrito y metodos solo al propietario.
+- Crear ventas solo con el UID de la sesion.
+- Leer ventas propias o, para administradores, todas las ventas.
+- Leer el documento de rol propio, sin permitir que la app cree admins.
+
+No uses reglas abiertas con `allow read, write: if true`.
+
+## 14. Probar el flujo completo
+
+1. Ejecuta `flutter pub get`.
+2. Inicia Android con `flutter run -d <device-id>`.
+3. Registra un cliente y agrega un producto al carrito.
+4. Completa checkout y comprueba que aparece un documento en `sales`.
+5. Comprueba que `users/{uid}/bagItems` queda vacio.
+6. Cierra sesion con el icono de salida.
+7. Inicia como admin y comprueba que aparecen el boton `+`, la opcion de editar
+   y todas las ventas en la vista `Live sales`.
+
+Si aparece `permission-denied`, verifica en este orden:
+
+1. Que publicaste `firestore.rules`.
+2. Que el UID del documento `admins/{uid}` coincide exactamente con
+   Authentication.
+3. Que el usuario tiene una sesion activa.
+4. Que la app apunta al mismo Project ID en el que creaste los datos.

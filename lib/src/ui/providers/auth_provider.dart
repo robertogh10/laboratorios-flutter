@@ -32,7 +32,7 @@ final authSessionProvider = StreamProvider<AuthSession?>((ref) {
     final email = user.email ?? '';
     final isAdmin = await ref
         .read(adminAccessServiceProvider)
-        .isAdminEmail(email);
+        .isAdmin(uid: user.uid, email: email);
 
     return AuthSession(uid: user.uid, email: email, isAdmin: isAdmin);
   });
@@ -50,7 +50,10 @@ class AuthController extends AsyncNotifier<void> {
     await _runAuthAction(() {
       return ref
           .read(firebaseAuthProvider)
-          .signInWithEmailAndPassword(email: email.trim(), password: password);
+          .signInWithEmailAndPassword(
+            email: email.trim().toLowerCase(),
+            password: password,
+          );
     });
   }
 
@@ -62,7 +65,7 @@ class AuthController extends AsyncNotifier<void> {
       return ref
           .read(firebaseAuthProvider)
           .createUserWithEmailAndPassword(
-            email: email.trim(),
+            email: email.trim().toLowerCase(),
             password: password,
           );
     });

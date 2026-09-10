@@ -7,15 +7,23 @@ class StoreHomeView extends StatelessWidget {
   const StoreHomeView({
     required this.products,
     required this.bagCount,
+    required this.isAdmin,
     required this.onProductPressed,
+    required this.onSignOut,
     required this.onBagPressed,
+    required this.onSalesPressed,
+    required this.onAddProductPressed,
     super.key,
   });
 
   final List<Product> products;
   final int bagCount;
+  final bool isAdmin;
   final ValueChanged<String> onProductPressed;
+  final VoidCallback onSignOut;
   final VoidCallback onBagPressed;
+  final VoidCallback onSalesPressed;
+  final VoidCallback onAddProductPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +39,24 @@ class StoreHomeView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(24, 25, 22, 21),
             child: Row(
               children: [
-                const Icon(Icons.search, size: 30, color: Color(0xFF202129)),
-                const Spacer(),
-                const Icon(
-                  Icons.favorite_border,
-                  size: 31,
-                  color: Color(0xFF202129),
+                IconButton(
+                  tooltip: 'Sign out',
+                  onPressed: onSignOut,
+                  icon: const Icon(Icons.logout, size: 27),
                 ),
-                const SizedBox(width: 24),
+                const Spacer(),
+                IconButton(
+                  tooltip: isAdmin ? 'Live sales' : 'My purchases',
+                  onPressed: onSalesPressed,
+                  icon: const Icon(Icons.receipt_long_outlined, size: 27),
+                ),
+                const SizedBox(width: 8),
+                if (isAdmin) ...[
+                  _AdminAddButton(onPressed: onAddProductPressed),
+                  const SizedBox(width: 10),
+                ] else ...[
+                  const SizedBox(width: 4),
+                ],
                 _BagButton(count: bagCount, onPressed: onBagPressed),
               ],
             ),
@@ -77,6 +95,26 @@ class StoreHomeView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _AdminAddButton extends StatelessWidget {
+  const _AdminAddButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: 'Add product',
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        backgroundColor: const Color(0xFFEAF4FF),
+        foregroundColor: const Color(0xFF0A7CFF),
+        fixedSize: const Size.square(42),
+      ),
+      icon: const Icon(Icons.add, size: 25),
     );
   }
 }

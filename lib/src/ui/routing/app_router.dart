@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/auth_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/onboarding_page.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/product_form_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/store_flow_page.dart';
 
 abstract final class AppRoutes {
@@ -14,11 +15,17 @@ abstract final class AppRoutes {
   static const register = '/auth/register';
   static const storeHome = '/store';
   static const storeBag = '/store/bag';
+  static const storeSales = '/store/sales';
   static const storeCheckout = '/store/checkout';
   static const storeAddCard = '/store/checkout/add-card';
+  static const storeNewProduct = '/store/admin/products/new';
 
   static String storeProduct(String productId) {
     return '/store/product/$productId';
+  }
+
+  static String storeEditProduct(String productId) {
+    return '/store/admin/products/$productId/edit';
   }
 }
 
@@ -36,6 +43,7 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
       }
 
       final isAuthRoute = path == AppRoutes.login || path == AppRoutes.register;
+      final isOnboardingRoute = path.startsWith('/onboarding');
       final isStoreRoute = path.startsWith('/store');
       final isSignedIn =
           firebaseEnabled && FirebaseAuth.instance.currentUser != null;
@@ -45,6 +53,10 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
       }
 
       if (isAuthRoute && isSignedIn) {
+        return AppRoutes.storeHome;
+      }
+
+      if (isOnboardingRoute && isSignedIn) {
         return AppRoutes.storeHome;
       }
 
@@ -82,6 +94,18 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
         },
       ),
       GoRoute(
+        path: AppRoutes.storeNewProduct,
+        builder: (context, state) {
+          return const ProductFormPage();
+        },
+      ),
+      GoRoute(
+        path: '/store/admin/products/:productId/edit',
+        builder: (context, state) {
+          return ProductFormPage(productId: state.pathParameters['productId']);
+        },
+      ),
+      GoRoute(
         path: '/store/product/:productId',
         builder: (context, state) {
           return StoreFlowPage(
@@ -94,6 +118,12 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
         path: AppRoutes.storeBag,
         builder: (context, state) {
           return const StoreFlowPage(view: StoreRouteView.bag);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.storeSales,
+        builder: (context, state) {
+          return const StoreFlowPage(view: StoreRouteView.sales);
         },
       ),
       GoRoute(

@@ -15,6 +15,7 @@ import 'package:laboratorio_experinece_app/src/domain/usecases/get_payment_metho
 import 'package:laboratorio_experinece_app/src/domain/usecases/get_products.dart';
 import 'package:laboratorio_experinece_app/src/domain/usecases/save_bag_items.dart';
 import 'package:laboratorio_experinece_app/src/domain/usecases/save_payment_methods.dart';
+import 'package:laboratorio_experinece_app/src/domain/usecases/save_product.dart';
 import 'package:laboratorio_experinece_app/src/ui/state/store_state.dart';
 
 final firebaseEnabledProvider = Provider<bool>((ref) => false);
@@ -64,6 +65,10 @@ final saveBagItemsProvider = Provider<SaveBagItems>((ref) {
 
 final savePaymentMethodsProvider = Provider<SavePaymentMethods>((ref) {
   return SavePaymentMethods(ref.watch(storeRepositoryProvider));
+});
+
+final saveProductProvider = Provider<SaveProduct>((ref) {
+  return SaveProduct(ref.watch(storeRepositoryProvider));
 });
 
 final storeControllerProvider =
@@ -328,6 +333,38 @@ class StoreController extends AsyncNotifier<StoreState> {
     _setStoreState(
       current.copyWith(billingSameAsShipping: !current.billingSameAsShipping),
     );
+  }
+
+  Future<void> saveProduct(Product product) async {
+    final current = _currentState;
+
+    if (current == null) {
+      return;
+    }
+
+    await ref.read(saveProductProvider)(product);
+
+    final exists = current.products.any((item) => item.id == product.id);
+    final products = exists
+        ? current.products.map((item) {
+            return item.id == product.id ? product : item;
+          }).toList()
+        : [...current.products, product];
+
+    _setStoreState(
+      current.copyWith(products: products, selectedProductId: product.id),
+    );
+  }
+
+  Future<void> clearBag() async {
+    final current = _currentState;
+
+    if (current == null) {
+      return;
+    }
+
+    await ref.read(saveBagItemsProvider)(const []);
+    _setStoreState(current.copyWith(bagItems: const []));
   }
 
   void _updateBagItems(StoreState current, List<BagItem> bagItems) {

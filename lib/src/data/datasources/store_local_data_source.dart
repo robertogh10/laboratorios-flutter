@@ -88,6 +88,9 @@ class StoreLocalDataSource implements StoreDataSource {
   }
 
   @override
+  Future<void> saveProduct(ProductModel product) async {}
+
+  @override
   Future<List<BagItemModel>> getBagItems() async {
     return _readSavedBagItems() ?? await _defaultBagItems();
   }

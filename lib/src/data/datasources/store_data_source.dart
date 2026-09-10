@@ -5,6 +5,8 @@ import 'package:laboratorio_experinece_app/src/data/models/product_model.dart';
 abstract interface class StoreDataSource {
   Future<List<ProductModel>> getProducts();
 
+  Future<void> saveProduct(ProductModel product);
+
   Future<List<BagItemModel>> getBagItems();
 
   Future<List<PaymentMethodModel>> getPaymentMethods();

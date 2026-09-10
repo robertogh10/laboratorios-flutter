@@ -1,6 +1,7 @@
 import 'package:laboratorio_experinece_app/src/data/datasources/store_data_source.dart';
 import 'package:laboratorio_experinece_app/src/data/models/bag_item_model.dart';
 import 'package:laboratorio_experinece_app/src/data/models/payment_method_model.dart';
+import 'package:laboratorio_experinece_app/src/data/models/product_model.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/bag_item.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/payment_method.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/product.dart';
@@ -30,6 +31,11 @@ class StoreRepositoryImpl implements StoreRepository {
     final products = await _dataSource.getProducts();
 
     return products.map((product) => product.toEntity()).toList();
+  }
+
+  @override
+  Future<void> saveProduct(Product product) {
+    return _dataSource.saveProduct(ProductModel.fromEntity(product));
   }
 
   @override

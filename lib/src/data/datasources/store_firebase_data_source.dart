@@ -48,6 +48,17 @@ class StoreFirebaseDataSource implements StoreDataSource {
   }
 
   @override
+  Future<void> saveProduct(ProductModel product) {
+    final data = _firestoreData(product.toJson())
+      ..remove('id')
+      ..['updatedAt'] = FieldValue.serverTimestamp();
+
+    return _productsCollection
+        .doc(product.id)
+        .set(data, SetOptions(merge: true));
+  }
+
+  @override
   Future<List<BagItemModel>> getBagItems() async {
     final snapshot = await _bagItemsCollection.get();
 
