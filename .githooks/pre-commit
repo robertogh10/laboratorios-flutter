@@ -1,0 +1,25 @@
+#!/bin/sh
+
+# Reject accidental staging of local credentials. Enable this shared hook once
+# per clone with: git config core.hooksPath .githooks
+set -eu
+
+git diff --cached --name-only --diff-filter=ACMR | while IFS= read -r file; do
+  case "$file" in
+    .env|.env.*|*/.env|*/.env.*)
+      case "$file" in *.env.example) continue ;; esac
+      echo "Commit blocked: '$file' is an environment file." >&2
+      exit 1
+      ;;
+    */google-services.json|google-services.json|*/GoogleService-Info.plist|GoogleService-Info.plist|*/key.properties|key.properties|*/keystore.properties|keystore.properties|*/signing.properties|signing.properties|*.pem|*.key|*.p8|*.p12|*.keystore|*.jks|*.mobileprovision|*service-account*.json|*firebase-adminsdk*.json)
+      echo "Commit blocked: '$file' may contain credentials or signing material." >&2
+      exit 1
+      ;;
+  esac
+done
+
+# Also stop private keys that have been pasted into otherwise ordinary files.
+if git diff --cached -U0 --no-color | grep -E '^\+.*-----BEGIN( [A-Z]+)? PRIVATE KEY-----' >/dev/null; then
+  echo 'Commit blocked: a private key was found in staged content.' >&2
+  exit 1
+fi

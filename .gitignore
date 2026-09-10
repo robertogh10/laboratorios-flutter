@@ -48,6 +48,25 @@ lib/src/core/firebase_options.dart
 .env.*
 !.env.example
 
+# Credentials, signing material and service accounts
+# These must remain local. Use a documented template with placeholder values
+# when configuration needs to be shared with the team.
+**/key.properties
+**/keystore.properties
+**/signing.properties
+*.pem
+*.key
+*.p8
+*.p12
+*.keystore
+*.jks
+*.mobileprovision
+**/service-account*.json
+**/*service-account*.json
+**/*firebase-adminsdk*.json
+firebase-adminsdk-*.json
+.firebase/
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
