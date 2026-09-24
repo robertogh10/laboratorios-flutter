@@ -50,7 +50,7 @@ class _MainAppState extends State<MainApp> {
   }
 
   Future<void> _initializeNotifications() async {
-    final service = NotificationsService();
+    final service = NotificationsService.instance;
     _notificationsService = service;
     final initialMessage = await service.initialize(
       onNotificationOpened: _openNotificationDestination,
@@ -64,7 +64,10 @@ class _MainAppState extends State<MainApp> {
 
   void _openNotificationDestination(RemoteMessage message) {
     final data = message.data;
-    final destination = (data['route'] ?? data['pantalla'] ?? '').toString();
+    final saleId = data['saleId']?.toString();
+    final destination = saleId != null && saleId.isNotEmpty
+        ? AppRoutes.storeSale(saleId)
+        : (data['route'] ?? data['pantalla'] ?? '').toString();
     final title = message.notification?.title?.toString().toLowerCase() ?? '';
 
     _openNotificationRoute(destination, title: title);
@@ -73,7 +76,11 @@ class _MainAppState extends State<MainApp> {
   void _openNotificationRoute(String destination, {String title = ''}) {
     final normalized = destination.toLowerCase();
 
-    if (normalized.contains('profile') || normalized.contains('perfil')) {
+    if (normalized.startsWith('/store/sales/') &&
+        Uri.tryParse(destination)?.pathSegments.length == 3) {
+      _router.go(destination);
+    } else if (normalized.contains('profile') ||
+        normalized.contains('perfil')) {
       _router.go(AppRoutes.storeProfile);
     } else if (normalized.contains('sale') ||
         normalized.contains('venta') ||

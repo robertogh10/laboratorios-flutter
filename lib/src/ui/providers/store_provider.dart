@@ -77,18 +77,40 @@ final storeControllerProvider =
 class StoreController extends AsyncNotifier<StoreState> {
   @override
   Future<StoreState> build() async {
-    final products = await ref.watch(getProductsProvider)();
-    final paymentMethods = await ref.watch(getPaymentMethodsProvider)();
+    // Start the independent reads together. A network problem must surface as
+    // an actionable error instead of leaving the store spinner indefinitely.
+    final productsFuture = _load(() => ref.watch(getProductsProvider)());
+    final paymentMethodsFuture = _load(
+      () => ref.watch(getPaymentMethodsProvider)(),
+    );
+    final bagItemsFuture = _load(() => ref.watch(getBagItemsProvider)());
+
+    final values = await Future.wait<Object>([
+      productsFuture,
+      paymentMethodsFuture,
+      bagItemsFuture,
+    ]);
+    final products = values[0] as List<Product>;
+    final paymentMethods = values[1] as List<PaymentMethod>;
+    final bagItems = values[2] as List<BagItem>;
 
     return StoreState(
       products: products,
-      bagItems: await ref.watch(getBagItemsProvider)(),
+      bagItems: bagItems,
       paymentMethods: paymentMethods,
       selectedProductId: products.isEmpty ? '' : products.first.id,
       selectedPaymentMethodId: paymentMethods.isEmpty
           ? ''
           : paymentMethods.first.id,
       billingSameAsShipping: true,
+    );
+  }
+
+  Future<T> _load<T>(Future<T> Function() action) {
+    return action().timeout(
+      const Duration(seconds: 20),
+      onTimeout: () =>
+          throw TimeoutException('La tienda no respondio en 20 segundos.'),
     );
   }
 

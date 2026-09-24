@@ -4,3 +4,10 @@ analyzer:
   exclude:
     - enyoi/**
     - firebase_login_migration/**
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**

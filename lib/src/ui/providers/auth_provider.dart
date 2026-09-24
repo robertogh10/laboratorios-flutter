@@ -99,8 +99,23 @@ class AuthController extends AsyncNotifier<void> {
       return;
     }
 
+    final user = ref.read(firebaseAuthProvider).currentUser;
+    if (user != null) {
+      try {
+        await ref
+            .read(firestoreProvider)
+            .collection('users')
+            .doc(user.uid)
+            .update({
+              'fcmToken': FieldValue.delete(),
+              'fcmTokenUpdatedAt': FieldValue.delete(),
+            });
+      } on FirebaseException {
+        // Signing out remains possible if the token was never saved.
+      }
+    }
     await ref.read(firebaseAuthProvider).signOut();
-    ref.invalidate(storeControllerProvider);
+    _resetStoreForAuthenticationChange();
   }
 
   Future<void> _runAuthAction(Future<void> Function() action) async {
@@ -117,12 +132,20 @@ class AuthController extends AsyncNotifier<void> {
     try {
       await action();
       state = const AsyncData(null);
-      ref.invalidate(storeControllerProvider);
+      _resetStoreForAuthenticationChange();
     } on FirebaseAuthException catch (error, stackTrace) {
       state = AsyncError(_friendlyMessage(error), stackTrace);
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
     }
+  }
+
+  /// The Firestore store data source is created with the current user's UID.
+  /// It must be recreated after sign-in, registration, or sign-out so it never
+  /// keeps reading the previous user's private subcollections.
+  void _resetStoreForAuthenticationChange() {
+    ref.invalidate(storeFirebaseDataSourceProvider);
+    ref.invalidate(storeControllerProvider);
   }
 
   String _friendlyMessage(FirebaseAuthException error) {

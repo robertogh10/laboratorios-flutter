@@ -8,6 +8,7 @@ class SalesStreamView extends StatelessWidget {
     required this.isAdmin,
     required this.onBack,
     required this.onRetry,
+    required this.onSalePressed,
     super.key,
   });
 
@@ -15,6 +16,7 @@ class SalesStreamView extends StatelessWidget {
   final bool isAdmin;
   final VoidCallback onBack;
   final VoidCallback onRetry;
+  final ValueChanged<String> onSalePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +61,10 @@ class SalesStreamView extends StatelessWidget {
                   separatorBuilder: (context, index) =>
                       const SizedBox(height: 12),
                   itemBuilder: (context, index) {
-                    return _SaleCard(sale: items[index], showUser: isAdmin);
+                    return InkWell(
+                      onTap: () => onSalePressed(items[index].id),
+                      child: _SaleCard(sale: items[index], showUser: isAdmin),
+                    );
                   },
                 );
               },

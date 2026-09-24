@@ -154,8 +154,9 @@ void main() {
     await tester.tap(find.text('Continue'));
     await tester.pumpAndSettle();
 
-    expect(find.text('My purchases'), findsOneWidget);
-    expect(find.textContaining('Sale #'), findsOneWidget);
+    expect(find.text('Resumen de compra'), findsOneWidget);
+    expect(find.text('Compra registrada'), findsOneWidget);
+    expect(find.textContaining('Número de compra:'), findsOneWidget);
     expect(find.textContaining('Amex'), findsOneWidget);
   });
 

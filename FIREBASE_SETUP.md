@@ -1,5 +1,62 @@
 # Configuracion de Firebase paso a paso
 
+## Probar con emuladores locales
+
+Este proyecto configura Authentication (9099), Firestore (8080), Storage
+(9199), Functions (5001) y la interfaz web (4000) en `firebase.json`. Las reglas locales
+`firestore.rules` y `storage.rules` se cargan automaticamente. Necesitas
+Firebase CLI y Java JDK; en macOS el script utiliza el JDK de Android Studio
+si esta instalado. En este equipo Firebase CLI y Node se instalaron dentro de
+`.firebase-tools/` (carpeta ignorada por Git).
+
+En otra maquina instala Node.js 22 o superior, Java JDK 21 y Firebase CLI
+(`npm install -g firebase-tools`). Instala tambien las dependencias de la
+funcion antes de iniciar los emuladores:
+
+```bash
+npm install --prefix functions
+```
+
+En una terminal, desde la raiz del proyecto:
+
+```bash
+bash scripts/start_firebase_emulators.sh
+```
+
+En otra terminal, inicia la app en un emulador Android:
+
+```bash
+flutter run --dart-define=USE_FIREBASE_EMULATORS=true
+```
+
+Para iOS Simulator o Web, registra primero la app de esa plataforma y agrega
+su configuracion Firebase, como se explica abajo. Para un dispositivo fisico,
+usa `--dart-define=FIREBASE_EMULATOR_HOST=IP_DE_TU_MAC` y cambia temporalmente
+los `host` de Auth, Firestore y Storage en `firebase.json` a `0.0.0.0` para
+exponer esos puertos a tu red de desarrollo. Android Emulator utiliza `10.0.2.2`
+automaticamente. No uses `USE_FIREBASE_EMULATORS` en una compilacion release.
+
+Abre `http://127.0.0.1:4000` para ver las cuentas, ventas y documentos de
+prueba. El script exporta los datos al terminar y los importa en la siguiente
+ejecucion; `emulator-data/` esta ignorado por Git. Puedes registrar un usuario
+desde la app y usar los productos y metodos de pago de ejemplo. Si deseas un
+administrador local, crea `admins/{uid}` desde la interfaz del emulador.
+
+Después del checkout, la app guarda la venta, muestra su resumen y genera una
+notificacion local que abre ese resumen al tocarla en modo emulador. Firebase
+Cloud Messaging no tiene emulador local: el token FCM se solicita al proyecto
+Firebase real si el dispositivo lo permite, y se guarda en
+`users/{uid}.fcmToken` en el Firestore al que se conecto la app.
+
+En produccion `functions/index.js` contiene `notifyPurchase`: cuando se crea
+una venta lee el token del comprador y envia una notificacion FCM cuyo destino
+es esa venta. Para activarla necesitaras el plan y los servicios de Google Cloud
+exigidos por Cloud Functions, habilitar Cloud Messaging y publicarla con
+`firebase deploy --only functions --project laboratorio-experience-app`.
+Esta funcion no envia FCM desde el emulador; el aviso local cubre las pruebas.
+El checkout de esta app registra una compra de demostracion: no procesa un
+cobro real ni requiere guardar numeros de tarjeta.
+
 La app puede trabajar con Firebase Authentication y Cloud Firestore, pero
 Firebase queda apagado mientras no existan credenciales. En ese modo muestra un
 acceso demo y usa `StoreLocalDataSource` como fallback local.

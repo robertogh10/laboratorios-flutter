@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:laboratorio_experinece_app/src/data/datasources/sales_data_source.dart';
 import 'package:laboratorio_experinece_app/src/data/datasources/sales_firebase_data_source.dart';
 import 'package:laboratorio_experinece_app/src/data/datasources/sales_local_data_source.dart';
+import 'package:laboratorio_experinece_app/src/data/models/sale_model.dart';
 import 'package:laboratorio_experinece_app/src/data/repositories/sales_repository_impl.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/auth_session.dart';
 import 'package:laboratorio_experinece_app/src/domain/entities/sale.dart';
@@ -50,6 +51,36 @@ final salesStreamProvider = StreamProvider<List<Sale>>((ref) async* {
   );
 });
 
+final saleDetailsProvider = FutureProvider.family<Sale?, String>((
+  ref,
+  saleId,
+) async {
+  final session = await _currentSession(ref);
+  if (session == null || saleId.isEmpty) return null;
+
+  if (ref.read(firebaseEnabledProvider)) {
+    final document = await ref
+        .read(firestoreProvider)
+        .collection('sales')
+        .doc(saleId)
+        .get();
+    if (!document.exists || document.data() == null) return null;
+    final sale = SaleModel.fromJson(
+      id: document.id,
+      json: document.data()!,
+    ).toEntity();
+    return sale.userId == session.uid || session.isAdmin ? sale : null;
+  }
+
+  final sales = await ref
+      .read(watchSalesProvider)(userId: session.uid, isAdmin: session.isAdmin)
+      .first;
+  for (final sale in sales) {
+    if (sale.id == saleId) return sale;
+  }
+  return null;
+});
+
 final salesControllerProvider = AsyncNotifierProvider<SalesController, void>(
   SalesController.new,
 );
@@ -58,7 +89,7 @@ class SalesController extends AsyncNotifier<void> {
   @override
   Future<void> build() async {}
 
-  Future<bool> checkout() async {
+  Future<Sale?> checkout() async {
     final storeState = ref.read(storeControllerProvider).asData?.value;
 
     if (storeState == null || storeState.bagItems.isEmpty) {
@@ -66,7 +97,7 @@ class SalesController extends AsyncNotifier<void> {
         StateError('Tu carrito esta vacio.'),
         StackTrace.current,
       );
-      return false;
+      return null;
     }
 
     final session = await _currentSession(ref);
@@ -76,7 +107,7 @@ class SalesController extends AsyncNotifier<void> {
         StateError('Inicia sesion para completar la compra.'),
         StackTrace.current,
       );
-      return false;
+      return null;
     }
 
     final selectedMethods = storeState.paymentMethods.where(
@@ -88,7 +119,7 @@ class SalesController extends AsyncNotifier<void> {
         StateError('Selecciona un metodo de pago.'),
         StackTrace.current,
       );
-      return false;
+      return null;
     }
 
     state = const AsyncLoading();
@@ -108,14 +139,14 @@ class SalesController extends AsyncNotifier<void> {
         createdAt: DateTime.now().toUtc(),
       );
 
-      await ref.read(createSaleProvider)(sale);
+      final createdSale = await ref.read(createSaleProvider)(sale);
       await ref.read(storeControllerProvider.notifier).clearBag();
       state = const AsyncData(null);
 
-      return true;
+      return createdSale;
     } catch (error, stackTrace) {
       state = AsyncError(error, stackTrace);
-      return false;
+      return null;
     }
   }
 }

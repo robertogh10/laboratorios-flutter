@@ -8,6 +8,7 @@ import 'package:laboratorio_experinece_app/src/ui/pages/credit_request_page.dart
 import 'package:laboratorio_experinece_app/src/ui/pages/onboarding_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/product_form_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/profile_page.dart';
+import 'package:laboratorio_experinece_app/src/ui/pages/sale_detail_page.dart';
 import 'package:laboratorio_experinece_app/src/ui/pages/store_flow_page.dart';
 
 abstract final class AppRoutes {
@@ -26,6 +27,10 @@ abstract final class AppRoutes {
 
   static String storeProduct(String productId) {
     return '/store/product/$productId';
+  }
+
+  static String storeSale(String saleId) {
+    return '/store/sales/${Uri.encodeComponent(saleId)}';
   }
 
   static String storeEditProduct(String productId) {
@@ -53,11 +58,14 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
           firebaseEnabled && FirebaseAuth.instance.currentUser != null;
 
       if (firebaseEnabled && isStoreRoute && !isSignedIn) {
-        return AppRoutes.login;
+        return '${AppRoutes.login}?from=${Uri.encodeComponent(state.uri.toString())}';
       }
 
       if (isAuthRoute && isSignedIn) {
-        return AppRoutes.storeHome;
+        final destination = state.uri.queryParameters['from'];
+        return destination != null && destination.startsWith('/store/')
+            ? destination
+            : AppRoutes.storeHome;
       }
 
       if (isOnboardingRoute && isSignedIn) {
@@ -129,6 +137,11 @@ GoRouter createAppRouter({bool firebaseEnabled = false}) {
         builder: (context, state) {
           return const StoreFlowPage(view: StoreRouteView.sales);
         },
+      ),
+      GoRoute(
+        path: '/store/sales/:saleId',
+        builder: (context, state) =>
+            SaleDetailPage(saleId: state.pathParameters['saleId']!),
       ),
       GoRoute(
         path: AppRoutes.storeCheckout,

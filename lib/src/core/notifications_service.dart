@@ -6,6 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:laboratorio_experinece_app/src/domain/entities/sale.dart';
+import 'package:laboratorio_experinece_app/src/ui/routing/app_router.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -15,6 +17,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 class NotificationsService {
+  static final instance = NotificationsService();
+
   NotificationsService({
     FirebaseMessaging? messaging,
     FirebaseAuth? auth,
@@ -42,6 +46,7 @@ class NotificationsService {
   StreamSubscription<RemoteMessage>? _openSubscription;
   StreamSubscription<String>? _tokenSubscription;
   StreamSubscription<User?>? _authSubscription;
+  bool _localInitialized = false;
 
   static void registerBackgroundHandler() {
     if (_supportsMobileNotifications) {
@@ -57,7 +62,6 @@ class NotificationsService {
       return null;
     }
 
-    await _messaging.requestPermission(alert: true, badge: true, sound: true);
     await _localNotifications
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
@@ -77,6 +81,28 @@ class NotificationsService {
       },
     );
 
+    _localInitialized = true;
+    final launchDetails = await _localNotifications
+        .getNotificationAppLaunchDetails();
+    final launchPayload = launchDetails?.notificationResponse?.payload;
+    if (launchDetails?.didNotificationLaunchApp == true &&
+        launchPayload != null &&
+        launchPayload.isNotEmpty) {
+      onLocalNotificationOpened(launchPayload);
+    }
+
+    await _localNotifications
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.requestNotificationsPermission();
+
+    try {
+      await _messaging.requestPermission(alert: true, badge: true, sound: true);
+    } catch (error) {
+      debugPrint('No se pudo solicitar permiso FCM: $error');
+    }
+
     _foregroundSubscription = FirebaseMessaging.onMessage.listen(
       _showForegroundNotification,
     );
@@ -91,7 +117,34 @@ class NotificationsService {
     });
     await _syncToken();
 
-    return _messaging.getInitialMessage();
+    try {
+      return await _messaging.getInitialMessage();
+    } catch (error) {
+      debugPrint('No se pudo leer el mensaje inicial FCM: $error');
+      return null;
+    }
+  }
+
+  Future<void> showPurchaseConfirmation(Sale sale) async {
+    if (!_supportsMobileNotifications || !_localInitialized) return;
+
+    await _localNotifications.show(
+      id: sale.id.hashCode & 0x7fffffff,
+      title: 'Compra registrada',
+      body:
+          'Tu compra por € ${sale.total.toStringAsFixed(2)} fue registrada. Toca para ver el resumen.',
+      payload: AppRoutes.storeSale(sale.id),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'high_priority_notifications',
+          'Avisos importantes',
+          channelDescription: 'Compras, ventas y novedades importantes.',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+    );
   }
 
   Future<void> _showForegroundNotification(RemoteMessage message) async {
@@ -126,8 +179,8 @@ class NotificationsService {
       if (token != null) {
         await _saveToken(token);
       }
-    } on FirebaseException catch (error) {
-      debugPrint('No se pudo sincronizar el token FCM: ${error.code}');
+    } catch (error) {
+      debugPrint('No se pudo sincronizar el token FCM: $error');
     }
   }
 
@@ -138,11 +191,15 @@ class NotificationsService {
       return;
     }
 
-    await _firestore.collection('users').doc(user.uid).set({
-      'email': user.email ?? '',
-      'fcmToken': token,
-      'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
+    try {
+      await _firestore.collection('users').doc(user.uid).set({
+        'email': user.email ?? '',
+        'fcmToken': token,
+        'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (error) {
+      debugPrint('No se pudo guardar el token FCM: $error');
+    }
   }
 
   void dispose() {

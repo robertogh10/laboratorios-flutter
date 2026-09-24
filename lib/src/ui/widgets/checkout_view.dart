@@ -88,7 +88,7 @@ class CheckoutView extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      "You won't be charged until you review the order on the\nnext page",
+                      'Demo checkout: your order is recorded without charging a card.',
                       style: TextStyle(
                         color: Color(0xFF737780),
                         fontSize: 15,

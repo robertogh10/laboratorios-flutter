@@ -66,6 +66,9 @@ lib/src/core/firebase_options.dart
 **/*firebase-adminsdk*.json
 firebase-adminsdk-*.json
 .firebase/
+.firebase-tools/
+emulator-data/
+functions/node_modules/
 
 # Android Studio will place build artifacts here
 /android/app/debug

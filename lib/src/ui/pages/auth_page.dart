@@ -203,7 +203,12 @@ class _AuthPageState extends ConsumerState<AuthPage> {
       return;
     }
 
-    context.go(AppRoutes.storeHome);
+    final destination = GoRouterState.of(context).uri.queryParameters['from'];
+    context.go(
+      destination != null && destination.startsWith('/store/')
+          ? destination
+          : AppRoutes.storeHome,
+    );
   }
 
   Future<void> _resetPassword() async {
